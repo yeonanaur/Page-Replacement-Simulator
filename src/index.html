@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Page Replacement Algorithms</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 0;
+      margin: 0;
+      background: linear-gradient(to right, #74ebd5, #ACB6E5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    h1 {
+      text-align: center;
+      color: #fff;
+      margin-top: 30px;
+      font-size: 2.5em;
+      text-shadow: 1px 1px 4px rgba(0,0,0,0.3);
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px;
+      width: 90%;
+      max-width: 800px;
+      box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
+    }
+
+    label, input {
+      display: block;
+      margin: 10px auto;
+      text-align: center;
+      font-size: 16px;
+    }
+
+    input {
+      padding: 8px;
+      width: 60px;
+      text-align: center;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+    }
+
+    .button-row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 15px 0;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 15px;
+      border: none;
+      border-radius: 8px;
+      background-color: #007BFF;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .algo-title {
+      text-align: center;
+      font-weight: bold;
+      font-size: 24px;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    #reference {
+      text-align: center;
+      font-weight: bold;
+      font-size: 18px;
+      margin-top: 20px;
+      color: #222;
+      background: #fff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
+      max-width: 800px;
+      width: 90%;
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.1);
+      margin-top: 15px;
+      background-color: white;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <h1>Page Replacement Algorithms</h1>
+
+  <div class="card">
+    <label for="frames">Enter Number of Page Frames:</label>
+    <input type="number" id="frames" min="1" max="10" onkeydown="handleEnter(event)"/>
+
+    <div class="button-row">
+      <button onclick="generateReference()">Generate Reference String</button>
+      <button onclick="runAlgorithm('fifo')">Run FIFO</button>
+      <button onclick="runAlgorithm('lru')">Run LRU</button>
+      <button onclick="runAlgorithm('opt')">Run OPT</button>
+    </div>
+  </div>
+
+  <div id="reference"></div>
+
+  <div class="card table-container" id="output"></div>
+
+  <script>
+    let referenceString = [];
+
+    function generateReferenceString(length = 20) {
+      return Array.from({ length }, () => Math.floor(Math.random() * 10));
+    }
+
+    function generateReference() {
+      referenceString = generateReferenceString();
+      document.getElementById('reference').innerHTML = `<strong>Reference String:</strong> ${referenceString.join(', ')}`;
+      document.getElementById('output').innerHTML = '';
+    }
+
+    function handleEnter(event) {
+      if (event.key === "Enter") {
+        generateReference();
+      }
+    }
+
+    function runAlgorithm(algorithm) {
+      const frameCount = parseInt(document.getElementById('frames').value);
+      if (isNaN(frameCount) || frameCount <= 0) {
+        alert("Please enter a valid number of frames.");
+        return;
+      }
+      if (referenceString.length === 0) {
+        alert("Please generate the reference string first.");
+        return;
+      }
+
+      let result;
+      switch (algorithm) {
+        case 'fifo':
+          result = simulateFIFO(referenceString, frameCount);
+          break;
+        case 'lru':
+          result = simulateLRU(referenceString, frameCount);
+          break;
+        case 'opt':
+          result = simulateOPT(referenceString, frameCount);
+          break;
+      }
+
+      displayTable(result.frames, result.faults, algorithm.toUpperCase());
+    }
+
+    function displayTable(framesLog, faults, name) {
+      let html = `
+        <div class="algo-title">${name} Algorithm</div>
+        <p style="text-align: center; font-weight: bold;">Page Faults: ${faults}</p>
+        <table>
+          <tr><th>Step</th><th>Page</th>`;
+
+      for (let i = 0; i < framesLog[0].length - 1; i++) {
+        html += `<th>Frame ${i + 1}</th>`;
+      }
+
+      html += `<th>Fault</th></tr>`;
+
+      framesLog.forEach((frameState, index) => {
+        const fault = frameState.slice(-1)[0];
+        const page = referenceString[index];
+        html += `<tr><td>${index + 1}</td><td>${page}</td>`;
+        for (let j = 0; j < frameState.length - 1; j++) {
+          html += `<td>${frameState[j] !== undefined ? frameState[j] : ''}</td>`;
+        }
+        html += `<td>${fault ? 'Yes' : 'No'}</td></tr>`;
+      });
+
+      html += '</table>';
+      document.getElementById('output').innerHTML = html;
+    }
+
+    function simulateFIFO(refString, frameCount) {
+      let frames = [];
+      let log = [];
+      let faults = 0;
+
+      refString.forEach(page => {
+        let fault = false;
+        if (!frames.includes(page)) {
+          if (frames.length === frameCount) {
+            frames.shift();
+          }
+          frames.push(page);
+          fault = true;
+          faults++;
+        }
+        log.push([...frames, ...Array(frameCount - frames.length).fill(undefined), fault]);
+      });
+
+      return { frames: log, faults };
+    }
+
+    function simulateLRU(refString, frameCount) {
+      let frames = [];
+      let log = [];
+      let faults = 0;
+
+      refString.forEach(page => {
+        let fault = false;
+        const index = frames.indexOf(page);
+        if (index === -1) {
+          if (frames.length === frameCount) {
+            frames.shift();
+          }
+          frames.push(page);
+          fault = true;
+          faults++;
+        } else {
+          frames.splice(index, 1);
+          frames.push(page);
+        }
+        log.push([...frames, ...Array(frameCount - frames.length).fill(undefined), fault]);
+      });
+
+      return { frames: log, faults };
+    }
+
+    function simulateOPT(refString, frameCount) {
+      let frames = [];
+      let log = [];
+      let faults = 0;
+
+      refString.forEach((page, index) => {
+        let fault = false;
+        if (!frames.includes(page)) {
+          if (frames.length < frameCount) {
+            frames.push(page);
+          } else {
+            let future = refString.slice(index + 1);
+            let indices = frames.map(f => future.indexOf(f));
+            let replaceIdx = indices.indexOf(Math.max(...indices.map(x => (x === -1 ? Infinity : x))));
+            frames[replaceIdx] = page;
+          }
+          fault = true;
+          faults++;
+        }
+        log.push([...frames, ...Array(frameCount - frames.length).fill(undefined), fault]);
+      });
+
+      return { frames: log, faults };
+    }
+  </script>
+</body>
+</html>

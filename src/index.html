@@ -30,7 +30,7 @@
       padding: 20px;
       margin: 20px;
       width: 90%;
-      max-width: 800px;
+      max-width: 900px;
       box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
     }
 
@@ -76,7 +76,7 @@
       text-align: center;
       font-weight: bold;
       font-size: 24px;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
       color: #333;
     }
 
@@ -90,8 +90,9 @@
       padding: 10px 20px;
       border-radius: 8px;
       box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
-      max-width: 800px;
+      max-width: 900px;
       width: 90%;
+      display: none;
     }
 
     .table-container {
@@ -102,18 +103,47 @@
       width: 100%;
       border-collapse: collapse;
       box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.1);
-      margin-top: 15px;
-      background-color: white;
+      margin-top: 10px;
+      background-color: rgba(255, 255, 255, 0.5);
+      animation: fadeIn 1s ease-in-out;
+      font-size: 14px;
     }
 
     th, td {
-      padding: 10px;
+      padding: 8px;
       border: 1px solid #ddd;
       text-align: center;
+      transition: background-color 0.3s ease;
+      white-space: nowrap;
     }
 
     th {
       background-color: #f2f2f2;
+    }
+
+    tr.transition-row {
+      animation: highlight 0.8s ease-in-out;
+    }
+
+    @keyframes highlight {
+      0% { background-color: #ffffcc; }
+      100% { background-color: transparent; }
+    }
+
+    .highlight-cell {
+      animation: flash 0.8s ease;
+      background-color: #a2f3a2 !important;
+    }
+
+    @keyframes flash {
+      0% { background-color: #ffff99; }
+      100% { background-color: #a2f3a2; }
+    }
+
+    #output p {
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 5px;
     }
   </style>
 </head>
@@ -123,48 +153,44 @@
   <div class="card">
     <label for="frames">Enter Number of Page Frames:</label>
     <input type="number" id="frames" min="1" max="10" onkeydown="handleEnter(event)"/>
-
     <div class="button-row">
-      <button onclick="generateReference()">Generate Reference String</button>
       <button onclick="runAlgorithm('fifo')">Run FIFO</button>
       <button onclick="runAlgorithm('lru')">Run LRU</button>
       <button onclick="runAlgorithm('opt')">Run OPT</button>
-    </div>
+      </div>
   </div>
 
   <div id="reference"></div>
-
   <div class="card table-container" id="output"></div>
-
   <script>
-    let referenceString = [];
+    let referenceString = []; // Array to store the sequence of page requests
 
     function generateReferenceString(length = 20) {
       return Array.from({ length }, () => Math.floor(Math.random() * 10));
     }
 
-    function generateReference() {
-      referenceString = generateReferenceString();
-      document.getElementById('reference').innerHTML = `<strong>Reference String:</strong> ${referenceString.join(', ')}`;
-      document.getElementById('output').innerHTML = '';
-    }
-
     function handleEnter(event) {
       if (event.key === "Enter") {
-        generateReference();
+        // Optionally trigger the first algorithm button if Enter is pressed
+        const buttons = document.querySelectorAll('.button-row button');
+        if (buttons.length > 0) {
+          buttons[0].click();
+        }
       }
     }
 
-    function runAlgorithm(algorithm) {
+    async function runAlgorithm(algorithm) {
       const frameCount = parseInt(document.getElementById('frames').value);
       if (isNaN(frameCount) || frameCount <= 0) {
         alert("Please enter a valid number of frames.");
         return;
       }
-      if (referenceString.length === 0) {
-        alert("Please generate the reference string first.");
-        return;
-      }
+
+      referenceString = generateReferenceString(20); // Generate reference string here
+      const refDiv = document.getElementById('reference');
+      refDiv.innerHTML = `<strong>Reference String:</strong> ${referenceString.join(', ')}`;
+      refDiv.style.display = 'block';
+      document.getElementById('output').innerHTML = '';
 
       let result;
       switch (algorithm) {
@@ -179,34 +205,48 @@
           break;
       }
 
-      displayTable(result.frames, result.faults, algorithm.toUpperCase());
+      await displayTableAnimated(result.frames, result.faults, algorithm.toUpperCase(), frameCount);
     }
 
-    function displayTable(framesLog, faults, name) {
-      let html = `
-        <div class="algo-title">${name} Algorithm</div>
-        <p style="text-align: center; font-weight: bold;">Page Faults: ${faults}</p>
-        <table>
-          <tr><th>Step</th><th>Page</th>`;
+    async function displayTableAnimated(framesLog, faults, name, frameCount) {
+      let output = document.getElementById('output');
+      let tableHTML = `<div class="algo-title">${name} Algorithm</div>
+        <p>Page Faults: ${faults}</p>
+        <table id="resultTable">
+          <thead>
+            <tr id="headerRow">
+              <th>Step</th>
+              <th>Page</th>`;
 
-      for (let i = 0; i < framesLog[0].length - 1; i++) {
-        html += `<th>Frame ${i + 1}</th>`;
+      for (let i = 0; i < frameCount; i++) {
+        tableHTML += `<th>Frame ${i + 1}</th>`;
       }
 
-      html += `<th>Fault</th></tr>`;
+      tableHTML += `<th>Fault</th>
+            </tr>
+          </thead>
+          <tbody>`;
 
-      framesLog.forEach((frameState, index) => {
+      for (let index = 0; index < framesLog.length; index++) {
+        const frameState = framesLog[index];
         const fault = frameState.slice(-1)[0];
-        const page = referenceString[index];
-        html += `<tr><td>${index + 1}</td><td>${page}</td>`;
-        for (let j = 0; j < frameState.length - 1; j++) {
-          html += `<td>${frameState[j] !== undefined ? frameState[j] : ''}</td>`;
-        }
-        html += `<td>${fault ? 'Yes' : 'No'}</td></tr>`;
-      });
+        const currentPage = referenceString[index];
+        const currentFrames = frameState.slice(0, -1);
 
-      html += '</table>';
-      document.getElementById('output').innerHTML = html;
+        tableHTML += `<tr class="transition-row"><td>${index + 1}</td><td>${currentPage}</td>`;
+
+        for (let i = 0; i < frameCount; i++) {
+          const cellValue = currentFrames[i] !== undefined ? currentFrames[i] : '';
+          const highlightClass = fault && currentFrames.includes(currentPage) && cellValue === currentPage && currentFrames.indexOf(currentPage) === i ? ' class="highlight-cell"' : '';
+          tableHTML += `<td${highlightClass}>${cellValue}</td>`;
+        }
+
+        tableHTML += `<td>${fault ? 'Yes' : 'No'}</td></tr>`;
+        await new Promise(resolve => setTimeout(resolve, 300)); // Animation delay
+      }
+
+      tableHTML += `</tbody></table>`;
+      output.innerHTML = tableHTML;
     }
 
     function simulateFIFO(refString, frameCount) {
@@ -217,14 +257,12 @@
       refString.forEach(page => {
         let fault = false;
         if (!frames.includes(page)) {
-          if (frames.length === frameCount) {
-            frames.shift();
-          }
+          if (frames.length === frameCount) frames.shift(); // Remove oldest page
           frames.push(page);
           fault = true;
           faults++;
         }
-        log.push([...frames, ...Array(frameCount - frames.length).fill(undefined), fault]);
+        log.push([...frames, fault]);
       });
 
       return { frames: log, faults };
@@ -239,17 +277,15 @@
         let fault = false;
         const index = frames.indexOf(page);
         if (index === -1) {
-          if (frames.length === frameCount) {
-            frames.shift();
-          }
+          if (frames.length === frameCount) frames.shift(); // Remove LRU page
           frames.push(page);
           fault = true;
           faults++;
         } else {
           frames.splice(index, 1);
-          frames.push(page);
+          frames.push(page); // Move to end to mark as recently used
         }
-        log.push([...frames, ...Array(frameCount - frames.length).fill(undefined), fault]);
+        log.push([...frames, fault]);
       });
 
       return { frames: log, faults };
@@ -269,12 +305,12 @@
             let future = refString.slice(index + 1);
             let indices = frames.map(f => future.indexOf(f));
             let replaceIdx = indices.indexOf(Math.max(...indices.map(x => (x === -1 ? Infinity : x))));
-            frames[replaceIdx] = page;
+            frames[replaceIdx] = page; // Replace page used furthest in future
           }
           fault = true;
           faults++;
         }
-        log.push([...frames, ...Array(frameCount - frames.length).fill(undefined), fault]);
+        log.push([...frames, fault]);
       });
 
       return { frames: log, faults };

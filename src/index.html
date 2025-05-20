@@ -14,25 +14,81 @@
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
+      color: #333;
+      width: 100vw;
+      overflow-x: hidden;
+      align-items: center;
     }
 
     h1 {
       text-align: center;
       color: #fff;
       margin-top: 30px;
+      margin-bottom: 20px;
       font-size: 2.5em;
       text-shadow: 1px 1px 4px rgba(0,0,0,0.3);
+    }
+
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      width: 95%;
+      max-width: 1600px;
+      gap: 20px;
+    }
+
+    @media (min-width: 900px) {
+      .main-content {
+        flex-direction: row;
+        align-items: flex-start;
+      }
+    }
+
+    .controls-column {
+      flex-shrink: 0;
+      width: 100%;
+      max-width: 300px;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 12px;
+      box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
+    }
+
+    @media (min-width: 900px) {
+      .controls-column {
+        width: 300px;
+        margin-right: 20px;
+        position: sticky;
+        top: 20px;
+      }
+    }
+
+    .table-column {
+      flex-grow: 1;
+      width: 100%;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .card {
       background: white;
       border-radius: 12px;
       padding: 20px;
-      margin: 20px;
-      width: 90%;
-      max-width: 900px;
+      margin-bottom: 20px;
+      width: 100%;
       box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
     }
+
+    .controls-column .card {
+      padding: 0;
+      box-shadow: none;
+      margin: 0;
+      background: none;
+    }
+
 
     label, input {
       display: block;
@@ -47,6 +103,12 @@
       text-align: center;
       border: 2px solid #ccc;
       border-radius: 8px;
+      transition: border-color 0.3s ease;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #007BFF;
     }
 
     .button-row {
@@ -65,11 +127,25 @@
       background-color: #007BFF;
       color: white;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      transition: background-color 0.3s ease, transform 0.2s ease;
     }
 
     button:hover {
       background-color: #0056b3;
+      transform: translateY(-2px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    /* Style for the new Reset button */
+    button.reset-button {
+      background-color: #6c757d; /* A gray color */
+    }
+
+    button.reset-button:hover {
+      background-color: #5a6268;
     }
 
     .algo-title {
@@ -84,86 +160,137 @@
       text-align: center;
       font-weight: bold;
       font-size: 18px;
-      margin-top: 20px;
+      margin-top: 0;
+      margin-bottom: 20px;
       color: #222;
-      background: #fff;
+      background: rgba(255, 255, 255, 0.85);
       padding: 10px 20px;
       border-radius: 8px;
       box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
-      max-width: 900px;
-      width: 90%;
+      width: 100%;
       display: none;
     }
 
     .table-container {
       overflow-x: auto;
+      width: 100%;
+      margin-top: 0;
+      border-radius: 12px;
+      box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.1);
+      background-color: rgba(255, 255, 255, 0.8);
     }
 
     table {
       width: 100%;
-      border-collapse: collapse;
-      box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.1);
-      margin-top: 10px;
-      background-color: rgba(255, 255, 255, 0.5);
+      min-width: 900px;
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 12px;
+      overflow: hidden;
       animation: fadeIn 1s ease-in-out;
       font-size: 14px;
     }
 
     th, td {
-      padding: 8px;
-      border: 1px solid #ddd;
+      padding: 12px 8px;
+      border: 1px solid rgba(224, 224, 224, 0.6);
       text-align: center;
       transition: background-color 0.3s ease;
       white-space: nowrap;
+      min-width: 80px;
+      background-color: rgba(255, 255, 255, 0.7);
     }
 
     th {
-      background-color: #f2f2f2;
+      background-color: rgba(248, 248, 248, 0.8);
+      font-weight: bold;
+      color: #555;
+      position: sticky;
+      top: 0;
+      z-index: 1;
     }
 
-    tr.transition-row {
-      animation: highlight 0.8s ease-in-out;
+    tr:nth-child(even) {
+      background-color: rgba(249, 249, 249, 0.75);
     }
 
-    @keyframes highlight {
-      0% { background-color: #ffffcc; }
-      100% { background-color: transparent; }
+    tr:hover {
+      background-color: rgba(241, 241, 241, 0.9);
     }
 
-    .highlight-cell {
-      animation: flash 0.8s ease;
-      background-color: #a2f3a2 !important;
+    /* Cell specific styling with transparency */
+    td:first-child, th:first-child {
+      background-color: rgba(234, 247, 247, 0.8);
+      font-weight: bold;
+    }
+    td:nth-child(2), th:nth-child(2) {
+      background-color: rgba(224, 224, 247, 0.8);
+      font-weight: bold;
     }
 
-    @keyframes flash {
-      0% { background-color: #ffff99; }
-      100% { background-color: #a2f3a2; }
+    /* Highlight for newly placed page (fault) with transparency */
+    .fault-highlight {
+      background-color: rgba(212, 237, 218, 0.95) !important;
+      font-weight: bold;
+      box-shadow: inset 0 0 0 2px rgba(139, 195, 74, 0.8);
     }
+
+    /* Visual for page hit with transparency */
+    .hit-highlight {
+      background-color: rgba(204, 229, 255, 0.95) !important;
+      font-weight: bold;
+      box-shadow: inset 0 0 0 2px rgba(100, 181, 246, 0.8);
+    }
+
+    /* Highlighting for the fault/no fault cell with transparency */
+    td.fault-yes {
+      background-color: rgba(248, 215, 218, 0.9) !important;
+      font-weight: bold;
+      color: #721c24;
+    }
+
+    td.fault-no {
+      background-color: rgba(212, 237, 218, 0.9) !important;
+      font-weight: bold;
+      color: #155724;
+    }
+
 
     #output p {
       text-align: center;
       font-weight: bold;
       margin-bottom: 5px;
+      color: #333;
     }
   </style>
 </head>
 <body>
   <h1>Page Replacement Algorithms</h1>
 
-  <div class="card">
-    <label for="frames">Enter Number of Page Frames:</label>
-    <input type="number" id="frames" min="1" max="10" onkeydown="handleEnter(event)"/>
-    <div class="button-row">
-      <button onclick="runAlgorithm('fifo')">Run FIFO</button>
-      <button onclick="runAlgorithm('lru')">Run LRU</button>
-      <button onclick="runAlgorithm('opt')">Run OPT</button>
+  <div class="main-content">
+    <div class="controls-column">
+      <div class="card">
+        <label for="frames">Enter Number of Page Frames:</label>
+        <input type="number" id="frames" min="1" max="10" value="3" onkeydown="handleEnter(event)"/>
+        <div class="button-row">
+          <button onclick="runAlgorithm('fifo')">Run FIFO</button>
+          <button onclick="runAlgorithm('lru')">Run LRU</button>
+          <button onclick="runAlgorithm('opt')">Run OPT</button>
+        </div>
+        <div class="button-row">
+          <button class="reset-button" onclick="resetPage()">Reset</button>
+        </div>
       </div>
+    </div>
+
+    <div class="table-column">
+      <div id="reference"></div>
+      <div class="table-container" id="output"></div>
+    </div>
   </div>
 
-  <div id="reference"></div>
-  <div class="card table-container" id="output"></div>
   <script>
-    let referenceString = []; // Array to store the sequence of page requests
+    let referenceString = [];
 
     function generateReferenceString(length = 20) {
       return Array.from({ length }, () => Math.floor(Math.random() * 10));
@@ -171,7 +298,6 @@
 
     function handleEnter(event) {
       if (event.key === "Enter") {
-        // Optionally trigger the first algorithm button if Enter is pressed
         const buttons = document.querySelectorAll('.button-row button');
         if (buttons.length > 0) {
           buttons[0].click();
@@ -186,7 +312,7 @@
         return;
       }
 
-      referenceString = generateReferenceString(20); // Generate reference string here
+      referenceString = generateReferenceString(20);
       const refDiv = document.getElementById('reference');
       refDiv.innerHTML = `<strong>Reference String:</strong> ${referenceString.join(', ')}`;
       refDiv.style.display = 'block';
@@ -205,7 +331,6 @@
           break;
       }
 
-      // Calculate page hits here
       const pageHits = referenceString.length - result.faults;
 
       await displayTableAnimated(result.frames, result.faults, pageHits, algorithm.toUpperCase(), frameCount);
@@ -217,7 +342,7 @@
         <p>Page Faults: ${faults} | Page Hits: ${hits}</p>
         <table id="resultTable">
           <thead>
-            <tr id="headerRow">
+            <tr>
               <th>Step</th>
               <th>Page</th>`;
 
@@ -228,42 +353,84 @@
       tableHTML += `<th>Fault</th>
             </tr>
           </thead>
-          <tbody>`;
+          <tbody></tbody></table>`;
+      output.innerHTML = tableHTML;
+
+      const tbody = document.querySelector('#resultTable tbody');
 
       for (let index = 0; index < framesLog.length; index++) {
         const frameState = framesLog[index];
-        const fault = frameState.slice(-1)[0];
+        const fault = frameState[frameCount];
         const currentPage = referenceString[index];
-        const currentFrames = frameState.slice(0, -1);
+        const currentFrames = frameState.slice(0, frameCount);
 
-        tableHTML += `<tr class="transition-row"><td>${index + 1}</td><td>${currentPage}</td>`;
-
-        for (let i = 0; i < frameCount; i++) {
-          const cellValue = currentFrames[i] !== undefined ? currentFrames[i] : '';
-          const highlightClass = fault && currentFrames.includes(currentPage) && cellValue === currentPage && currentFrames.indexOf(currentPage) === i ? ' class="highlight-cell"' : '';
-          tableHTML += `<td${highlightClass}>${cellValue}</td>`;
+        let pageFoundInFrameIndex = -1;
+        if (!fault) {
+            pageFoundInFrameIndex = currentFrames.indexOf(currentPage);
         }
 
-        tableHTML += `<td>${fault ? 'Yes' : 'No'}</td></tr>`;
-        await new Promise(resolve => setTimeout(resolve, 300)); // Animation delay
-      }
+        let rowHTML = `<tr class="entering-row"><td>${index + 1}</td><td>${currentPage}</td>`;
 
-      tableHTML += `</tbody></table>`;
-      output.innerHTML = tableHTML;
+        for (let i = 0; i < frameCount; i++) {
+          const cellValue = currentFrames[i] !== null ? currentFrames[i] : '';
+          let cellClass = '';
+
+          if (fault && currentFrames[i] === currentPage) {
+             cellClass = 'fault-highlight';
+          } else if (!fault && i === pageFoundInFrameIndex) {
+             cellClass = 'hit-highlight';
+          }
+          rowHTML += `<td class="${cellClass}">${cellValue}</td>`;
+        }
+
+        const faultCellClass = fault ? 'fault-yes' : 'fault-no';
+        rowHTML += `<td class="${faultCellClass}">${fault ? 'Yes' : 'No'}</td></tr>`;
+
+        tbody.insertAdjacentHTML('beforeend', rowHTML);
+
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+    }
+
+    function initializeFrames(frameCount) {
+        return Array(frameCount).fill(null);
+    }
+
+    function findPageIndexInFrames(frames, page) {
+        for (let i = 0; i < frames.length; i++) {
+            if (frames[i] === page) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     function simulateFIFO(refString, frameCount) {
-      let frames = [];
+      let frames = initializeFrames(frameCount);
+      let fifoQueue = [];
       let log = [];
       let faults = 0;
 
       refString.forEach(page => {
         let fault = false;
-        if (!frames.includes(page)) {
-          if (frames.length === frameCount) frames.shift(); // Remove oldest page
-          frames.push(page);
+        const pageIndexInFrames = findPageIndexInFrames(frames, page);
+
+        if (pageIndexInFrames === -1) {
           fault = true;
           faults++;
+
+          let emptyIndex = frames.indexOf(null);
+          if (emptyIndex !== -1) {
+            frames[emptyIndex] = page;
+            fifoQueue.push(page);
+          } else {
+            const oldestPage = fifoQueue.shift();
+            const oldestPageIndex = findPageIndexInFrames(frames, oldestPage);
+            if (oldestPageIndex !== -1) {
+                frames[oldestPageIndex] = page;
+                fifoQueue.push(page);
+            }
+          }
         }
         log.push([...frames, fault]);
       });
@@ -272,21 +439,34 @@
     }
 
     function simulateLRU(refString, frameCount) {
-      let frames = [];
+      let frames = initializeFrames(frameCount);
+      let lruOrder = [];
       let log = [];
       let faults = 0;
 
       refString.forEach(page => {
         let fault = false;
-        const index = frames.indexOf(page);
-        if (index === -1) {
-          if (frames.length === frameCount) frames.shift(); // Remove LRU page
-          frames.push(page);
+        const pageIndexInFrames = findPageIndexInFrames(frames, page);
+
+        if (pageIndexInFrames === -1) {
           fault = true;
           faults++;
+
+          let emptyIndex = frames.indexOf(null);
+          if (emptyIndex !== -1) {
+            frames[emptyIndex] = page;
+            lruOrder.push(page);
+          } else {
+            const lruPage = lruOrder.shift();
+            const lruPageIndex = findPageIndexInFrames(frames, lruPage);
+            if (lruPageIndex !== -1) {
+                frames[lruPageIndex] = page;
+                lruOrder.push(page);
+            }
+          }
         } else {
-          frames.splice(index, 1);
-          frames.push(page); // Move to end to mark as recently used
+          lruOrder.splice(lruOrder.indexOf(page), 1);
+          lruOrder.push(page);
         }
         log.push([...frames, fault]);
       });
@@ -295,28 +475,65 @@
     }
 
     function simulateOPT(refString, frameCount) {
-      let frames = [];
+      let frames = initializeFrames(frameCount);
       let log = [];
       let faults = 0;
 
       refString.forEach((page, index) => {
         let fault = false;
-        if (!frames.includes(page)) {
-          if (frames.length < frameCount) {
-            frames.push(page);
-          } else {
-            let future = refString.slice(index + 1);
-            let indices = frames.map(f => future.indexOf(f));
-            let replaceIdx = indices.indexOf(Math.max(...indices.map(x => (x === -1 ? Infinity : x))));
-            frames[replaceIdx] = page; // Replace page used furthest in future
-          }
+        const pageIndexInFrames = findPageIndexInFrames(frames, page);
+
+        if (pageIndexInFrames === -1) {
           fault = true;
           faults++;
+
+          let emptyIndex = frames.indexOf(null);
+          if (emptyIndex !== -1) {
+            frames[emptyIndex] = page;
+          } else {
+            let future = refString.slice(index + 1);
+            let pageToReplace = null;
+            let furthestUseIndexInFuture = -1;
+
+            for (let i = 0; i < frameCount; i++) {
+                const currentPageInFrame = frames[i];
+                if (currentPageInFrame === null) {
+                    pageToReplace = currentPageInFrame;
+                    break;
+                }
+                const futureAppearanceIndex = future.indexOf(currentPageInFrame);
+
+                if (futureAppearanceIndex === -1) {
+                    pageToReplace = currentPageInFrame;
+                    break;
+                } else if (futureAppearanceIndex > furthestUseIndexInFuture) {
+                    furthestUseIndexInFuture = futureAppearanceIndex;
+                    pageToReplace = currentPageInFrame;
+                }
+            }
+
+            const replaceIdx = findPageIndexInFrames(frames, pageToReplace);
+            if (replaceIdx !== -1) {
+                frames[replaceIdx] = page;
+            }
+          }
         }
         log.push([...frames, fault]);
       });
 
       return { frames: log, faults };
+    }
+
+    function resetPage() {
+      // Clear the reference string display
+      document.getElementById('reference').innerHTML = '';
+      document.getElementById('reference').style.display = 'none';
+
+      // Clear the output table
+      document.getElementById('output').innerHTML = '';
+
+      // Reset the number of frames input to its default value
+      document.getElementById('frames').value = '3';
     }
   </script>
 </body>

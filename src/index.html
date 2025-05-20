@@ -205,13 +205,16 @@
           break;
       }
 
-      await displayTableAnimated(result.frames, result.faults, algorithm.toUpperCase(), frameCount);
+      // Calculate page hits here
+      const pageHits = referenceString.length - result.faults;
+
+      await displayTableAnimated(result.frames, result.faults, pageHits, algorithm.toUpperCase(), frameCount);
     }
 
-    async function displayTableAnimated(framesLog, faults, name, frameCount) {
+    async function displayTableAnimated(framesLog, faults, hits, name, frameCount) {
       let output = document.getElementById('output');
       let tableHTML = `<div class="algo-title">${name} Algorithm</div>
-        <p>Page Faults: ${faults}</p>
+        <p>Page Faults: ${faults} | Page Hits: ${hits}</p>
         <table id="resultTable">
           <thead>
             <tr id="headerRow">
